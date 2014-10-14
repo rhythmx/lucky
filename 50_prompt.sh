@@ -2,6 +2,10 @@
 
 PS1='[\u@\h \W]\$ ' # <== not so snazzy default
 
+# Define this empty here to avoid not found errors if git is not present
+function __git_ps1() {
+    false
+}
 
 # Git should come with some handy prompt-fu
 if [ -e /usr/share/git/completion/git-prompt.sh ]; then
