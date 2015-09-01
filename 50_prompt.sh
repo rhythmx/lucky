@@ -1,5 +1,8 @@
 # Setup a snazzy dynamic prompt
 
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
 PS1='[\u@\h \W]\$ ' # <== not so snazzy default
 
 # Define this empty here to avoid not found errors if git is not present
