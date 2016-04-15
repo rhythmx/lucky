@@ -36,8 +36,17 @@ function prompt_statusline() {
     len=$(expr length "${wdir} ${gitp}")
     len=$((len+6))
     line=$(printf '═%.s' $(seq 1 $len))
-    top="${bldblk}╔═${txtcyn}[${bldcyn}${time}${txtcyn}]${bldblk}$line╗"
-    bot="${bldblk}╚═════════════${txtgrn}[ ${bldgrn}${wdir} ${bldylw}${gitp}${bldgrn} ${txtgrn}]${bldblk}═╝${txtrst}" 
+    if [ "$EMACS" == "t" ]; then
+	lc="$bldwht"
+    else
+	lc="$bldblk"
+    fi
+    tc1="$txtcyn"
+    tc2="$bldcyn"
+    sc1="$txtgrn"
+    sc2="$bldgrn"
+    top="${lc}╔═${tc1}[${tc2}${time}${tc1}]${lc}$line╗${txtrst}"
+    bot="${lc}╚═════════════${sc1}[ ${sc2}${wdir} ${bldylw}${gitp}${sc2} ${sc1}]${lc}═╝${txtrst}" 
     
     if [[ $global_err == 0 ]]; then
 	c=${bldgrn}
