@@ -8,6 +8,14 @@ PS1='[\u@\h \W]\$ ' # <== not so snazzy default
 
 global_err=''
 
+# Example: 
+#
+# ╔═(00:46 Thu)══════════════════════════════╗
+# ╚═══════════ ~/code/lim/cxxlean (master<) ═╝
+#     
+# sean@scruffy $
+
+
 # Dynamically build a Bash Prompt (i.e, result stored in PS1)
 function prompt_builder() {
     
@@ -33,7 +41,8 @@ function prompt_statusline() {
     time=$(date +"%H:%M %a")
     wdir=$(pwd)
     gitp=$(prompt_git)
-    len=$(expr length "${wdir} ${gitp}")
+    bt=$(battery_info)
+    len=$(expr length "${wdir} ${bt} ${gitp}")
     len=$((len+6))
     line=$(printf '═%.s' $(seq 1 $len))
     if [ "$EMACS" == "t" ]; then
@@ -46,7 +55,7 @@ function prompt_statusline() {
     sc1="$txtgrn"
     sc2="$bldgrn"
     top="${lc}╔═${tc1}[${tc2}${time}${tc1}]${lc}$line╗${txtrst}"
-    bot="${lc}╚═════════════${sc1}[ ${sc2}${wdir} ${bldylw}${gitp}${sc2} ${sc1}]${lc}═╝${txtrst}" 
+    bot="${lc}╚═════════════${sc1}[ ${sc2}${wdir} ${bt} ${bldylw}${gitp}${sc2} ${sc1}]${lc}═╝${txtrst}" 
     
     if [[ $global_err == 0 ]]; then
 	c=${bldgrn}
@@ -64,6 +73,20 @@ function prompt_dir() {
     echo "${bldylw}$(pwd)"
 }
 
+function battery_info() {
+    test -f /usr/bin/acpi || return
+    (acpi -a | grep on-line >/dev/null 2>&1 ) && echo -n "AC" && return
+
+    batt_lvl=$((  $(( $(acpi -b | grep -Po '\d+%' | tr '%' ' ' | tr '\n' '+' | sed -e 's/+$//g' ) )) / $(acpi -b | grep -Po '\d+%' | tr '%' ' ' | wc -l) ))
+    state=""
+    if ( acpi -b | grep -i discharging  >/dev/null 2>&1 ); then
+	state=discharging
+    else
+	state=charging
+    fi
+    echo -n "(${batt_lvl}%-${state})"
+}
+
 function prompt_git() {
     GIT_PS1_SHOWDIRTYSTATE=1
     GIT_PS1_SHOWSTASHSTATE=1
@@ -75,10 +98,6 @@ function prompt_git() {
 
     echo $(__git_ps1)
 }
-# ╔═(00:46 Thu)══════════════════════════════╗
-# ╚═══════════ ~/code/lim/cxxlean (master<) ═╝
-#     
-# sean@scruffy $
 
 # Define this empty here to avoid not found errors if git is not present
 function __git_ps1() {
