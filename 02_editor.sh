@@ -1,0 +1,2 @@
+EDITOR=emacsclient
+export EDITOR 
