@@ -47,3 +47,11 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+# Enable 256 colors in situations that it is known to work. Mostly I
+# use xfce4-term but any gnome-terminal derivative should
+# work. Probably most anything else modern too
+
+if [ "$COLORTERM" == "xfce4-terminal" ]; then 
+    export TERM=xterm-256color
+fi
