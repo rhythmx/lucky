@@ -19,7 +19,7 @@ bldblu='\[\e[1;34m\]' # Blue
 bldpur='\[\e[1;35m\]' # Purple
 bldcyn='\[\e[1;36m\]' # Cyan
 bldwht='\[\e[1;37m\]' # White
-unkblk='\[\e[4;30m\]' # Black - Underline
+undblk='\[\e[4;30m\]' # Black - Underline
 undred='\[\e[4;31m\]' # Red
 undgrn='\[\e[4;32m\]' # Green
 undylw='\[\e[4;33m\]' # Yellow
@@ -147,4 +147,21 @@ colors() {
 		done
 		echo; echo
 	done
+}
+
+colors2() {
+    # standard colors
+    for C in {40..47}; do
+	echo -en "\e[${C}m$C "
+    done
+    
+    # high intensity colors
+    for C in {100..107}; do
+	echo -en "\e[${C}m$C "
+    done
+    # 256 colors
+    for C in {16..255}; do
+	echo -en "\e[48;5;${C}m$C "
+    done
+    echo -e "\e(B\e[m" 
 }
