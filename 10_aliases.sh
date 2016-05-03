@@ -2,3 +2,4 @@
 [[ $- != *i* ]] && return
 
 alias ls='ls --color=auto'
+alias mz='mplayer -zoom -fs'
