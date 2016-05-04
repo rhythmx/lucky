@@ -4,10 +4,13 @@
 #    PATH=$PATH:${HOME}/code/lean/bin
 #fi
 
-LEAN_PATH="/home/sean/code/lim/cxxlean/lean/src:/home/sean/code/lim/cxxlean/lean/src/cxx/ast"
+
+unset LEAN_PATH
 if which lean >/dev/null 2>&1
 then
-	LEAN_PATH=`lean --path`:$LEAN_PATH
+	# path must be unset before calling so that compile time path is output
+	LEAN_PATH=`lean --path`
+	LEAN_PATH=$LEAN_PATH:"/home/sean/code/lim/cxxlean/lean/src:/home/sean/code/lim/cxxlean/lean/src/cxx/ast"
 fi
 
 export LEAN_PATH
