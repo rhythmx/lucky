@@ -1,5 +1,6 @@
 # Wrappers around youtube_dl for easy  watching and archiving of video links
 
+[[ $- != *i* ]] && return
 
 function youtuber-is-id() {
     id="$1"; shift
