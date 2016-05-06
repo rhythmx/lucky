@@ -10,7 +10,12 @@
 # station display port, VGA1 is the projector port on the laptop
 # itself.
 
-export DISPLAY=:0
+# debug log
+exec >> /var/log/monitor_hotplug.log
+exec 2>&1
+set -x
+
+export DISPLAY=:0.0
 export XAUTHORITY=/home/sean/.Xauthority
 
 stat_file(){ printf "/sys/class/drm/card0-%s/status" $1; }
@@ -20,7 +25,7 @@ d=$(cat $(stat_file "DP-2"))
 if [ "$d" = disconnected ]; then
     xr_args="${xr_args} --output DP2 --off"
 elif [ "$d" = connected ]; then
-    xr_args="${xr_args} --output DP2 --mode 1920x1080 --left-of LVDS1"
+    xr_args="${xr_args} --output DP2 --preferred --left-of LVDS1"
 fi
 p=$(cat $(stat_file VGA-1))
 if [ "$p" = disconnected ]; then
@@ -28,6 +33,8 @@ if [ "$p" = disconnected ]; then
 elif [ "$p" = connected ]; then
     xr_args="${xr_args} --output VGA1 --above LVDS1 --auto"
 fi
+
 echo xrandr $xr_args
+
 /usr/bin/xrandr $xr_args
 
