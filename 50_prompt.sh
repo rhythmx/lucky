@@ -100,7 +100,7 @@ function prompt_updates() {
     test -x /usr/bin/checkupdates || return
 
     # Update at most once every few hours
-    if ! find $updates_file -mmin -360 >/dev/null 2>&1 ; then
+    if ! ( find $updates_file -mmin -360 2>/dev/null | egrep '.*' >/dev/null ) ; then
 	echo -ne "${BWhite} * Updating list of packages, please wait...${Color_Off}" >&2
 	num=`checkupdates | wc -l > $updates_file`
 	echo -ne "${BGreen} ok!${Color_Off}" >&2
