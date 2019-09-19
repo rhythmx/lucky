@@ -1,7 +1,7 @@
 # Color aliases from https://wiki.archlinux.org/index.php/Color_Bash_Prompt
 
 # If not running interactively, don't do anything
-[[ $- != *i* ]] && return
+[[ "$-" != *i* ]] && return
 
 txtblk='\[\e[0;30m\]' # Black - Regular
 txtred='\[\e[0;31m\]' # Red

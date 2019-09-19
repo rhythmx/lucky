@@ -3,7 +3,7 @@
 PS1='[\u@\h \W]\$ ' # <== not so snazzy default
 
 # If not running interactively, don't do anything
-[[ $- != *i* ]] && return
+[[ "$-" != *i* ]] && return
 
 
 global_err=''

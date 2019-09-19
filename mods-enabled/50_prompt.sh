@@ -1,0 +1,1 @@
+../mods-available/50_prompt.sh
