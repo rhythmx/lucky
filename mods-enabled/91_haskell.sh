@@ -1,1 +1,0 @@
-../mods-available/91_haskell.sh

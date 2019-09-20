@@ -37,17 +37,17 @@ function rand32() {
     echo $(( ( ($RANDOM + $RANDOM) << 16) + $RANDOM + $RANDOM))
 }
 
-rand_hexchar() {
+function rand_hexchar() {
     printf "%02x" $(( $RANDOM % 256 ))
 }
 
-rand_hexstr() {
+function rand_hexstr() {
     len=$1
     for i in $(seq 1 $len); do
         rand_hexchar
     done
 }
 
-rand_uuid() {
+function rand_uuid() {
     echo "$(rand_hexstr 4)-$(rand_hexstr 2)-$(rand_hexstr 2)-$(rand_hexstr 2)-$(rand_hexstr 6)"
 }

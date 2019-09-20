@@ -1,23 +1,28 @@
 #!/bin/bash
 
-echo "┌───────────────────────────────┐"
-echo "│░█░░░█░█░█▀▀░█░█░█░█░░░░█▀▀░█░█│"
-echo "│░█░░░█░█░█░░░█▀▄░░█░░░░░▀▀█░█▀█│"
-echo "│░▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀░░▀▀▀░▀░▀│"
-echo "│                               │"
-echo "│ Local User  Configuration Kit │"
-echo "│     (c) 2019, Sean Bradly     │"
-echo "│        version 0.9.0          │"
-echo "└───────────────────────────────┘"
-echo "                                 "
+function banner() {
+    echo "┌───────────────────────────────┐"
+    echo "│░█░░░█░█░█▀▀░█░█░█░█░░░░█▀▀░█░█│"
+    echo "│░█░░░█░█░█░░░█▀▄░░█░░░░░▀▀█░█▀█│"
+    echo "│░▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀░░▀▀▀░▀░▀│"
+    echo "│                               │"
+    echo "│ Local User  Configuration Kit │"
+    echo "│     (c) 2019, Sean Bradly     │"
+    echo "│        version 0.9.0          │"
+    echo "└───────────────────────────────┘"
+    echo "                                 "
+}
 
 function usage() {
     echo "${0}: [command] (args ...)"
     echo "      help:           display this message"
     echo "      install:        setup autoloading"
-    echo "      list:           list available modules"
+    echo "      list:           list enabled modules"
+    echo "      list-all:       list every available module"
     echo "      enable [mod]:   enable the given module"
     echo "      disable [mod]:  disable the given module"
+    echo "      locate [mod]:   print location of script file for mod"
+    echo "      reload [mod]:   reload script source (if enabled)"
 }
 
 function install() {
@@ -43,6 +48,44 @@ function install() {
     exit 0
 }
 
+function en_path_for() {
+    p=$(find "$LUCKYDIR/mods-enabled" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
+    [ -e "$p" ] && echo $p
+}
+
+function av_path_for() {
+    p=$(find "$LUCKYDIR/mods-available" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
+    [ -e "$p" ] && echo $p
+}
+
+function prio_for() {
+    $(basename $(av_path_for $1) | cut -d_ -f1)
+}
+
+function enable_mod() {
+    if [ -e "$(en_path_for $1)" ]; then
+        echo "$1 is already enabled"
+        return
+    fi
+    ap=$(av_path_for $1)
+    if [ ! -e "$ap" ]; then
+        echo "$1 is not a valid module. see '$0 list-all'"
+        return
+    fi
+    (cd "$LUCKYDIR/mods-enabled" && ln -sf "$ap" .)
+    echo "$1 is now enabled"
+}
+
+function disable_mod() {
+    ep=$(en_path_for $1)
+    if [ ! -e "$ep" ]; then
+        echo "Module $1 is not enabled or does not exist. See '$0 list'"
+        return
+    fi
+    rm "$ep"
+    echo "$1 has been disabled"
+}
+
 if [ "$1" == "install" ]; then
     install
 fi
@@ -60,16 +103,36 @@ fi
 
 # Handle arguments
 case "$1" in
-    help)
+    hel[p])
+        banner
         usage
         ;;
     list)
-        for f in $(find $LUCKYDIR/mods-available -maxdepth 1 -name *.sh | sort); do
+        for f in $(find $LUCKYDIR/mods-enabled -maxdepth 1 -name '*.sh' | sort); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;
+    list-all)
+        for f in $(find $LUCKYDIR/mods-available -maxdepth 1 -name '*.sh' | sort); do
+            basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
+        done
+        ;;
+    enabl[e])
+        enable_mod $2
+        ;;
+    disable)
+        disable_mod $2
+        ;;
+    locate)
+        av_path_for $2
+        ;;
+    reload)
+        echo "source $(en_path_for $2)"
+        ;;
     *)
+        banner
         echo "Unrecognized command: $1"
+        echo
         usage
         exit 255
 esac
