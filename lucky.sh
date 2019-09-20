@@ -87,6 +87,7 @@ function disable_mod() {
 }
 
 if [ "$1" == "install" ]; then
+    banner
     install
 fi
 
