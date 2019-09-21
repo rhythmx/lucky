@@ -49,12 +49,12 @@ function install() {
 }
 
 function en_path_for() {
-    p=$(find "$LUCKYDIR/mods-enabled" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
+    p=$(find "$LUCKY_DIR/mods-enabled" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
     [ -e "$p" ] && echo $p
 }
 
 function av_path_for() {
-    p=$(find "$LUCKYDIR/mods-available" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
+    p=$(find "$LUCKY_DIR/mods-available" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
     [ -e "$p" ] && echo $p
 }
 
@@ -72,7 +72,7 @@ function enable_mod() {
         echo "$1 is not a valid module. see '$0 list-all'"
         return
     fi
-    (cd "$LUCKYDIR/mods-enabled" && ln -sf "$ap" .)
+    (cd "$LUCKY_DIR/mods-enabled" && ln -sf "$ap" .)
     echo "$1 is now enabled"
 }
 
@@ -91,7 +91,7 @@ if [ "$1" == "install" ]; then
     install
 fi
 
-if [ -z "$LUCKYDIR" ]; then
+if [ -z "$LUCKY_DIR" ]; then
     echo "lucky.sh has not yet been installed. Run \"lucky.sh --install\" first"
     exit 255
 fi
@@ -109,12 +109,12 @@ case "$1" in
         usage
         ;;
     list)
-        for f in $(find $LUCKYDIR/mods-enabled -maxdepth 1 -name '*.sh' | sort); do
+        for f in $(find $LUCKY_DIR/mods-enabled -maxdepth 1 -name '*.sh' | sort); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;
     list-all)
-        for f in $(find $LUCKYDIR/mods-available -maxdepth 1 -name '*.sh' | sort); do
+        for f in $(find $LUCKY_DIR/mods-available -maxdepth 1 -name '*.sh' | sort); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;

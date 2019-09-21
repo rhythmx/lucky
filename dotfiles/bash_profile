@@ -1,1 +1,6 @@
+# Setup lucky core
+
+export LUCKY_DIR=$HOME/.bashrc.d
+export PATH=$PATH:$LUCKYDIR
+
 [[ -r ~/.bashrc ]] && . ~/.bashrc

@@ -2,11 +2,6 @@
 # ~/.bashrc
 #
 
-# Setup lucky core
-
-export LUCKYDIR=$HOME/.bashrc.d
-export PATH=$PATH:$LUCKYDIR
-
 # Load up each module
 
 for script in $(find ~/.bashrc.d/mods-enabled -maxdepth 1 -name "*.sh" 2>/dev/null | sort); do
