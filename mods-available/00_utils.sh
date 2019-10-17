@@ -51,3 +51,9 @@ function rand_hexstr() {
 function rand_uuid() {
     echo "$(rand_hexstr 4)-$(rand_hexstr 2)-$(rand_hexstr 2)-$(rand_hexstr 2)-$(rand_hexstr 6)"
 }
+
+function rand_mac() {
+    masked_oui=$(( ($RANDOM % 256) & 252 ))
+    printf "%02x:%02x:%02x:%02x:%02x:%02x" $masked_oui $(( $RANDOM % 255 )) \
+           $(( $RANDOM % 255 )) $(( $RANDOM % 255 )) $(( $RANDOM % 255 )) $(( $RANDOM % 255 ))
+}
