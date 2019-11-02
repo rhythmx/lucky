@@ -26,13 +26,18 @@ function usage() {
 }
 
 function install() {
+    if [ -z "$LUCKY_DIR" ]; then
+	echo "LUCKY_DIR is not set!"
+    fi
     if [ -e "${HOME}/.bashrc" ]; then
         if [ -f "${HOME}/.bashrc" ]; then
             cp -a "${HOME}/.bashrc" "${HOME}/.bashrc.$(date +%s).bak"
         fi
         rm "${HOME}/.bashrc"
     fi
-    ln -sf "${HOME}/.bashrc.d/dotfiles/bashrc" "${HOME}/.bashrc"
+    cat "${LUCKY_DIR}/dotfiles/bashrc" | \
+	    sed -e "s:%%LUCKY_DIR%%:$LUCKY_DIR:" \
+	    > "${HOME}/.bashrc" 
 
     if [ -e "${HOME}/.bash_profile" ]; then
         if [ -f "${HOME}/.bash_profile" ]; then
@@ -40,7 +45,7 @@ function install() {
         fi
         rm "${HOME}/.bash_profile"
     fi
-    ln -sf "${HOME}/.bashrc.d/dotfiles/bash_profile" "${HOME}/.bash_profile"
+    ln -sf "${LUCKY_DIR}/dotfiles/bash_profile" "${HOME}/.bash_profile"
 
     source "$HOME/.bash_profile"
 
@@ -72,7 +77,8 @@ function enable_mod() {
         echo "$1 is not a valid module. see '$0 list-all'"
         return
     fi
-    (cd "$LUCKY_DIR/mods-enabled" && ln -sf "$ap" .)
+    rp=$(realpath --relative-to="$LUCKY_DIR/mods-enabled" "$ap")
+    (cd "$LUCKY_DIR/mods-enabled" && ln -sf "$rp" .)
     echo "$1 is now enabled"
 }
 
@@ -88,6 +94,7 @@ function disable_mod() {
 
 if [ "$1" == "install" ]; then
     banner
+    LUCKY_DIR=$(readlink -f "$(dirname ${BASH_SOURCE[0]})")
     install
 fi
 

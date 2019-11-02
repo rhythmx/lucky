@@ -4,12 +4,12 @@
 
 # Setup lucky core
 
-export LUCKY_DIR=$HOME/.bashrc.d
+export LUCKY_DIR="%%LUCKY_DIR%%"
 export PATH=$PATH:$LUCKY_DIR
 
 # Load up each module
 
-for script in $(find ~/.bashrc.d/mods-enabled -maxdepth 1 -name "*.sh" 2>/dev/null | sort); do
+for script in $(find "$LUCKY_DIR/mods-enabled" -maxdepth 1 -name "*.sh" 2>/dev/null | sort); do
     # NOTE: Each subscript should decide if it needs to be run in non-interactive
     source $script
 done

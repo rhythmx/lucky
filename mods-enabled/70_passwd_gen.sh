@@ -1,1 +1,1 @@
-/home/sean/.bashrc.d/mods-available/70_passwd_gen.sh
+../mods-available/70_passwd_gen.sh

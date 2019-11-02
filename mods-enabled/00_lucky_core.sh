@@ -1,1 +1,1 @@
-/home/sean/.bashrc.d/mods-available/00_lucky_core.sh
+/home/sean/code/lucky/mods-available/00_lucky_core.sh
