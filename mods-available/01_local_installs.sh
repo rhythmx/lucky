@@ -1,6 +1,6 @@
 # Stuff installed per user should prefix itself here
-PATH=$PATH:/home/sean/local/bin:/home/sean/.bashrc.d/bin
+PATH=$PATH:$LUCKY_DIR/local/bin:$LUCKY_DIR/bin
 export PATH
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/sean/local/lib
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LUCKY_DIR/local/lib
 export LD_LIBRARY_PATH
