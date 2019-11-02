@@ -1,0 +1,9 @@
+build-essential
+autoconf automake
+textinfo
+libx11-dev
+libgtk-3-dev
+libxpm-dev libjpeg-dev libgif-dev libtiff-dev libgnutls28-dev
+libncurses-dev
+libsystemd-dev
+./configure --prefix=/home/sean/code/lucky/local/ --with-x-toolkit=gtk3

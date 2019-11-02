@@ -27,7 +27,7 @@ function usage() {
 
 function install() {
     if [ -z "$LUCKY_DIR" ]; then
-	echo "LUCKY_DIR is not set!"
+	      echo "LUCKY_DIR is not set!"
     fi
     if [ -e "${HOME}/.bashrc" ]; then
         if [ -f "${HOME}/.bashrc" ]; then
@@ -36,8 +36,8 @@ function install() {
         rm "${HOME}/.bashrc"
     fi
     cat "${LUCKY_DIR}/dotfiles/bashrc" | \
-	    sed -e "s:%%LUCKY_DIR%%:$LUCKY_DIR:" \
-	    > "${HOME}/.bashrc" 
+	      sed -e "s:%%LUCKY_DIR%%:$LUCKY_DIR:" \
+	      > "${HOME}/.bashrc" 
 
     if [ -e "${HOME}/.bash_profile" ]; then
         if [ -f "${HOME}/.bash_profile" ]; then
