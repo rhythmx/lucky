@@ -19,37 +19,47 @@ function ssh_agent_init() {
 }
 
 function ssh_agent_reset_if_dead() {
-    kill -0 $SSH_AGENT_PID > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
+    kill -0 "$SSH_AGENT_PID" > /dev/null 2>&1
+    pid_exists=$?
+    if [ -S "$SSH_AUTH_SOCK" ] && [ $pid_exists ]; then
+        logmsg debug ssh pid is live and sock exists
+        return 1
+    else
         logmsg debug "ssh agent env contains stale information, deleting it"
         unset SSH_AUTH_SOCK
         unset SSH_AGENT_PID
         return 0
-    else
-        return 1
     fi
 }
 
+logmsg debug Checking environment
+
 # Check current ENV vars
-if [ -n "$SSH_AGENT_PID" -a -S "$SSH_AUTH_SOCK" ]; then
+if [ -n "$SSH_AGENT_PID" ] || [ -n "$SSH_AUTH_SOCK" ]; then
     ssh_agent_reset_if_dead || logmsg debug Using existing \
                                       ssh agent from environment
 fi
 
+# Fallback to saved env file
+if [ -z "$SSH_AGENT_PID" ] && [ -z "$SSH_AUTH_SOCK" ]; then
+    logmsg debug Checking environment file
+
+    if [ -f "$SSH_AGENT_ENVFILE" ]; then
+        logmsg debug Loading existing agent file
+        source "$SSH_AGENT_ENVFILE"
+    fi
+    if ssh_agent_reset_if_dead ; then
+       rm -f "$SSH_AGENT_ENVFILE"
+    else
+        logmsg debug Using existing \
+               ssh agent from envfile
+    fi
+fi
+
 # If no ssh_agent env exists
 if [ -z "$SSH_AGENT_PID" ]; then
-    if [ -f "$SSH_AGENT_ENVFILE" ]; then
-        source "$SSH_AGENT_ENVFILE"
-        if ssh_agent_reset_if_dead; then
-            rm -f "$SSH_AGENT_ENVFILE"
-            ssh_agent_init
-        else
-            logmsg debug "Using ssh agent from env file"
-        fi
-    else
-        logmsg info "Starting a new ssh agent"
-        ssh_agent_init
-    fi
+    logmsg info "Starting a new ssh agent"
+    ssh_agent_init
 fi
 
 # Handle the case where something external (desktop environment) has started the agent but has not created the environment file
