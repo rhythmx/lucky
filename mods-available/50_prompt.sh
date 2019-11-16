@@ -1,24 +1,36 @@
 # Setup a snazzy dynamic prompt
+# Example:
+
+# ╔═[ 18:09 Fri /home/sean/code/lucky ]══════════════════════════════════════════╗
+# ╚═══════════════════════════════════════[ (84%-discharging) (18 pkg updates) ]═╝
+#
+# [sean@kor] $
 
 PS1='[\u@\h \W]\$ ' # <== not so snazzy default
 
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
-
 global_err=''
 
+# TODO: Under heavy load or on shitty platforms it can take a while to generate
+# the fancy prompt. Some of these building blocks could be memoized to speed
+# things up. Otherwise, if the whole process takes too long, it should
+# automatically fall back to a faster method. Timeouts (vs fallbacks) would be
+# nice, but I'm not sure I like the idea of asynchronous processes running at
+# every prompt.
 
 # Colors & Config 
-line_color="$bldblk"
-time_color="$bldcny"
+line_color="$txtpur"
+time_color=""
 gitp_color="$bldylw"
-wdir_color="$bldgrn"
+wdir_color="$txtgrn"
 err_color="$bldred"
+batt_color=""
 updates_color="$bldylw"
 updates_file="${HOME}/.prompt_update_checks"
 top_status_color="$txtcyn"
-bottom_status_color="$txtgrn"
+bottom_status_color="$txtcyn"
 
 prompt_width=80
 
@@ -28,16 +40,10 @@ if [ "$EMACS" == "t" ]; then
 fi
 
 
-# Example: 
-#
-# ╔═[16:44 Thu (224 pkg updates)]════════════════════════════════════════════════╗
-# ╚═══════════════════════════════════════════════════════════════[ /home/sean ]═╝
-#
-# [sean@fry] $ 
 
 # Dynamically build a Bash Prompt (i.e, result stored in PS1)
 function prompt_builder() {
-    
+
     # Must come first, save last exit code for later use. Any other
     # commands run will overwrite it.
     global_err=$?
@@ -46,7 +52,7 @@ function prompt_builder() {
     PS1=''
 
     # Prompt is divided into two lines, a status line and a simple prompt
-    
+
     PS1+="\n$(prompt_statuslines)\n\n$(prompt_promptline)"
 
 }
@@ -82,43 +88,67 @@ function prompt_battery_info() {
     batt_lvl=$((  $part / $tot ))
     state=""
     if ( acpi -b | grep -i discharging  >/dev/null 2>&1 ); then
-	state=discharging
+	      state=discharging
     else
-	state=charging
+	      state=charging
     fi
-    echo -n "(${batt_lvl}%-${state})"
+    echo -n "${batt_color}(${batt_lvl}%-${state})"
 }
 
 function prompt_last_err() {
     if [[ $global_err != 0 ]]; then
-	echo "${err_color}(exit ${global_err})"
+	echo "${err_color}(${global_err})"
     fi
 }
 
-function prompt_updates() {
-    # TODO: detect arch and do something useful for each
+function prompt_updates_archlinux() {
+    # TODO: detect os/distro and do something useful for each
     test -x /usr/bin/checkupdates || return
 
     # Update at most once every few hours
     if ! ( find $updates_file -mmin -360 2>/dev/null | egrep '.*' >/dev/null ) ; then
-	echo -ne "${BWhite} * Updating list of packages, please wait...${Color_Off}" >&2
-	num=`checkupdates | wc -l > $updates_file`
-	echo -ne "${BGreen} ok!${Color_Off}" >&2
+	      echo -ne "${BWhite} * Updating list of packages, please wait...${Color_Off}" >&2
+	      num=`checkupdates | wc -l > $updates_file`
+	      echo -ne "${BGreen} ok!${Color_Off}" >&2
     fi
 
     num=$(cat $updates_file)
-    
+
     if [ $num -gt 0 ]; then
-	echo "${updates_color}($num pkg updates)"
+	      echo "${updates_color}($num pkg updates)"
     fi
 }
 
+function prompt_updates_ubuntu() {
+    num=$(apt list --upgradable 2>/dev/null | grep upgradable | wc -l)
+    if [ ${num} -gt 0 ]; then
+        echo "${updates_color}($num pkg updates)"
+    fi
+}
+
+#
+# Displays message number of available updates for the local system
+#
+function prompt_updates() {
+    if test -x /usr/bin/checkupdates; then
+        prompt_updates_archlinux
+        return
+    fi
+
+    if which apt >/dev/null; then
+        prompt_updates_ubuntu
+        return
+    fi
+
+    # TODO: others
+}
+
 function prompt_bottom_status() {
-    echo $(join_strings_color "$top_status_color" "$(prompt_time)" "$(prompt_last_err)" "$(prompt_updates)")
+    echo $(join_strings_color "$bottom_status_color" "$(prompt_battery_info)" "$(prompt_updates)"  "$(prompt_git)")
 }
 
 function prompt_top_status() {
-    echo $(join_strings_color "$bottom_status_color" "$(prompt_wdir)" "$(prompt_battery_info)" "$(prompt_git)")
+    echo $(join_strings_color "$top_status_color" "$(prompt_time)" "$(prompt_last_err)" "$(prompt_wdir)")
 }
 
 function prompt_top_line() {
@@ -172,21 +202,21 @@ function join_strings() {
 
 # Join several strings together with spaces in between with a default color
 function join_strings_color() {
-    ret=""
-    color=$1
+    local ret=""
+    local color=$1
     shift
     while test $# -gt 0
     do
-	printable=$(strip_colors $1)
-	if [ "$printable" != "" ]
-	then
-	    if [ "$ret" != "" ]
-	    then
-		ret="${ret} "
-	    fi
-	    ret="${ret}${color}${1}"
-	fi
-	shift
+	      local printable=$(strip_colors $1)
+	      if [ "$printable" != "" ]
+	      then
+	          if [ "$ret" != "" ]
+	          then
+		            ret="${ret} "
+	          fi
+	          ret="${ret}${color}${1}"
+	      fi
+	      shift
     done
     echo $ret
 }
@@ -204,4 +234,3 @@ fi
 # [/path/to/full/dir GITINFO(info)]
 
 PROMPT_COMMAND='prompt_builder'
-
