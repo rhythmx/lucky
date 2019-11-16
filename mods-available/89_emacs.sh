@@ -1,3 +1,5 @@
+logmsg emacs::debug loading emacs features
+
 function install_spacemacs() {
 	if ! which emacs >/dev/null; then
 		echo "Emacs is not installed, attempting to install..."

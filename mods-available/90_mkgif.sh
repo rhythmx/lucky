@@ -1,3 +1,5 @@
+logmsg mkgif::debug setting up mkgif 
+
 # Convert MP4 into gif suitable for web
 function mkgif() {
     if [ -f "$1" ]; then

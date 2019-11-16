@@ -11,6 +11,8 @@ PS1='[\u@\h \W]\$ ' # <== not so snazzy default
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
+logmsg prompt::debug setting up custom prompt system
+
 global_err=''
 
 # TODO: Under heavy load or on shitty platforms it can take a while to generate

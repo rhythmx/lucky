@@ -12,7 +12,7 @@ LUCKY_BINDIR="$LUCKY_PREFIX/bin"
 export LUCKY_PREFIX LUCKY_RUNDIR LUCKY_BINDIR
 
 function create_and_chmod() {
-    dirname=$1
+    local dirname=$1
     if [ ! -d "$dirname" ]; then
         mkdir -p "$dirname"
     fi
@@ -27,42 +27,46 @@ create_and_chmod "$LUCKY_BINDIR"
 LUCKY_VERBOSITY=4 # of 5
 
 function loghdg() {
-    echo -ne '\e[1;37m[\e[0m '
-    echo -ne "$1"
-    echo -ne ' \e[1;37m]\e[0m '
+    echo -ne '\e[1;37m[\e[0m '  1>&2
+    echo -ne "$1"               1>&2
+    echo -ne ' \e[1;37m]\e[0m ' 1>&2
 }
 
 function logmsg() {
-    case $1 in
-        error)
+    local level=$1
+    case $level in
+        *error)
             if [ "$LUCKY_VERBOSITY" -ge 1 ]; then
                 shift
-                loghdg '\e[0;31mLucky::error\e[0m'
-                echo "$@"
+                loghdg '\e[0;31m${level}\e[0m'
+                echo "$@" 1>&2
             fi
             ;;
-        warn)
+        *warn)
             if [ "$LUCKY_VERBOSITY" -ge 2 ]; then
                 shift
-                loghdg "\e[0;33mLucky::warn\e[0m"
-                echo "$@"
+                loghdg "\e[0;33m${level}\e[0m"
+                echo "$@" 1>&2
             fi
             ;;
-        info)
+        *info)
             if [ "$LUCKY_VERBOSITY" -ge 3 ]; then
                 shift
-                loghdg "\e[0;32mLucky::info\e[0m"
-                echo "$@"
+                loghdg "\e[0;32m${level}\e[0m"
+                echo "$@" 1>&2
             fi
             ;;
-        debug)
+        *debug)
             if [ "$LUCKY_VERBOSITY" -ge 4 ]; then
                 shift
-                loghdg "\e[0;36mLucky::debug\e[0m"
-                echo "$@"
+                loghdg "\e[0;36m${level}\e[0m"
+                echo "$@" 1>&2
             fi
+            ;;
+        *)
+            echo "unknown log level!!! msg == " "$@" 1>&2
             ;;
     esac
 }
 
-logmsg debug Loaded lucky_core.sh
+logmsg lucky_core::info Loaded lucky.sh core

@@ -1,3 +1,5 @@
+logmsg lean::debug "loading lean development tools"
+
 # nvm, don't include directly from builds any more
 #if [ -d ${HOME}/code/lean/bin ]
 #then

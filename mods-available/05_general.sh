@@ -3,6 +3,8 @@
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
+logmsg general::debug loading general bashrc fare
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth

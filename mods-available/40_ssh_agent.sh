@@ -11,7 +11,7 @@ SSH_AGENT_ENVFILE="$LUCKY_RUNDIR/ssh_agent.run"
 function ssh_agent_init() {
     agent_output=$(ssh-agent -s -t $SSH_AGENT_LIFETIME | grep -v 'echo Agent')
     if [ $? -ne 0 ]; then
-        logmsg error Failed to start an ssh agent
+        logmsg ssh_agent::error Failed to start an ssh agent
         return
     fi
     echo $agent_output > $SSH_AGENT_ENVFILE
@@ -22,43 +22,43 @@ function ssh_agent_reset_if_dead() {
     kill -0 "$SSH_AGENT_PID" > /dev/null 2>&1
     pid_exists=$?
     if [ -S "$SSH_AUTH_SOCK" ] && [ $pid_exists ]; then
-        logmsg debug ssh pid is live and sock exists
+        logmsg ssh_agent::debug ssh pid is live and sock exists
         return 1
     else
-        logmsg debug "ssh agent env contains stale information, deleting it"
+        logmsg ssh_agent::debug "ssh agent env contains stale information, deleting it"
         unset SSH_AUTH_SOCK
         unset SSH_AGENT_PID
         return 0
     fi
 }
 
-logmsg debug Checking environment
+logmsg ssh_agent::debug Checking environment
 
 # Check current ENV vars
 if [ -n "$SSH_AGENT_PID" ] || [ -n "$SSH_AUTH_SOCK" ]; then
-    ssh_agent_reset_if_dead || logmsg debug Using existing \
+    ssh_agent_reset_if_dead || logmsg ssh_agent::debug Using existing \
                                       ssh agent from environment
 fi
 
 # Fallback to saved env file
 if [ -z "$SSH_AGENT_PID" ] && [ -z "$SSH_AUTH_SOCK" ]; then
-    logmsg debug Checking environment file
+    logmsg ssh_agent::debug Checking environment file
 
     if [ -f "$SSH_AGENT_ENVFILE" ]; then
-        logmsg debug Loading existing agent file
+        logmsg ssh_agent::debug Loading existing agent file
         source "$SSH_AGENT_ENVFILE"
     fi
     if ssh_agent_reset_if_dead ; then
        rm -f "$SSH_AGENT_ENVFILE"
     else
-        logmsg debug Using existing \
+        logmsg ssh_agent::debug Using existing \
                ssh agent from envfile
     fi
 fi
 
 # If no ssh_agent env exists
 if [ -z "$SSH_AGENT_PID" ]; then
-    logmsg info "Starting a new ssh agent"
+    logmsg ssh_agent::info "Starting a new ssh agent"
     ssh_agent_init
 fi
 

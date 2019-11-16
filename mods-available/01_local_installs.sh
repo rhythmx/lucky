@@ -4,3 +4,5 @@ export PATH
 
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LUCKY_DIR/local/lib
 export LD_LIBRARY_PATH
+
+logmsg local_installs::debug Loaded paths for local installations
