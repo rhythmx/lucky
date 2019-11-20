@@ -223,10 +223,13 @@ function join_strings_color() {
     echo $ret
 }
 
-# Define this empty here to avoid not found errors if git is not present
-function __git_ps1() {
-    false
-}
+# If it is not already defined, define this empty function here to avoid not
+# found errors if git is not present
+if ! declare -f __git_ps1 >/dev/null; then
+    function __git_ps1() {
+        false
+    }
+fi
 
 # Git should come with some handy prompt-fu
 if [ -e /usr/share/git/completion/git-prompt.sh ]; then
