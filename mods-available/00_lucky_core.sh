@@ -41,7 +41,7 @@ function logmsg() {
         *error)
             if [ "$LUCKY_VERBOSITY" -ge 1 ]; then
                 shift
-                loghdg '\e[0;31m${level}\e[0m'
+                loghdg "\e[0;31m${level}\e[0m"
                 echo "$@" 1>&2
             fi
             ;;
