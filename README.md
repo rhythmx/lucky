@@ -38,3 +38,11 @@
 ### Reloading module after changes
 
     $ eval $(lucky.sh reload rvm)
+
+## TODO ##
+
+- Add some sort of management for local project built with git
+  - At a minimum, I'd like to have an alert for local compiled packages with a major revision available
+- Alert if common or desired utilties are not available
+- Alert if certain system resources are not available
+- Support library to allow alerts during prompt generation
