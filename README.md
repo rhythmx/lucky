@@ -40,7 +40,7 @@
     $ eval $(lucky.sh reload rvm)
 
 ## TODO ##
-
+- Log to file in addition to stderr (esp when non-interactive blocks stdio)
 - Add some sort of management for local project built with git
   - At a minimum, I'd like to have an alert for local compiled packages with a major revision available
 - Alert if common or desired utilties are not available
