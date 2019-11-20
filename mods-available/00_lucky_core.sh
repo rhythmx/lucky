@@ -33,6 +33,9 @@ function loghdg() {
 }
 
 function logmsg() {
+    # If not running interactively, don't log anything since it might break certain scripts
+    [[ "$-" != *i* ]] && return
+
     local level=$1
     case $level in
         *error)
