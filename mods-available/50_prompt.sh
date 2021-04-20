@@ -72,6 +72,7 @@ function prompt_wdir() {
 }
 
 function prompt_git() {
+    return
     GIT_PS1_SHOWDIRTYSTATE=1
     GIT_PS1_SHOWSTASHSTATE=1
     GIT_PS1_SHOWUNTRACKEDFILES=1
