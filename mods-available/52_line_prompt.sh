@@ -78,7 +78,9 @@ hue_step=8
 
 # Set fg hsl
 function fg() {
+    echo -n "\\[" 
     setfg_truecolor_rgb $(hsl_to_rgb $1 $2 $3)
+    echo -n "\\]" 
 }
 
 # Gradient iterator
