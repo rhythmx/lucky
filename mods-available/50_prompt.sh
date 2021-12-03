@@ -138,7 +138,7 @@ function prompt_updates() {
         return
     fi
 
-    if which apt >/dev/null; then
+    if which apt >/dev/null 2>&1; then
         prompt_updates_ubuntu
         return
     fi
