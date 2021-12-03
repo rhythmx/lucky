@@ -77,7 +77,7 @@ hue_start=$(( RANDOM % 360 ))
 hue_step=8
 
 # Set fg hsl
-function fg() {
+function fgc() {
     echo -n "\\[" 
     setfg_truecolor_rgb $(hsl_to_rgb $1 $2 $3)
     echo -n "\\]" 
@@ -107,7 +107,7 @@ function r() {
 function two_line() {
     hue_start=$(( RANDOM % 360 ))
     hue_step=8
-    PS1="\n$(g 2)╭$(g 3)─$(g 4)─$(g 5)─$(g 6)─$(g 7)─$(g 8)╼$(r) $(fg 0 0 0.5)\@$(r) $(g 9)╾─╼ \w\n$(g 1)╰$(g 0)╼$(r) $(g 0)\u@\h$(r) $(fg 0 0 0.5)\$$(r) "
+    PS1="\n$(g 2)╭$(g 3)─$(g 4)─$(g 5)─$(g 6)─$(g 7)─$(g 8)╼$(r) $(fgc 0 0 0.5)\@$(r) $(g 9)╾─╼ \w\n$(g 1)╰$(g 0)╼$(r) $(g 0)\u@\h$(r) $(fgc 0 0 0.5)\$$(r) "
 }
 
 export PROMPT_COMMAND="two_line"
