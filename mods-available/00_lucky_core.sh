@@ -24,7 +24,9 @@ create_and_chmod "$LUCKY_PREFIX"
 create_and_chmod "$LUCKY_RUNDIR"
 create_and_chmod "$LUCKY_BINDIR"
 
-LUCKY_VERBOSITY=4 # of 5
+if [ -z "$LUCKY_VERBOSITY" ]; then
+	LUCKY_VERBOSITY=2 # of 5
+fi
 
 function loghdg() {
     echo -ne '\e[1;37m[\e[0m '  1>&2
