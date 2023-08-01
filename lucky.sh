@@ -99,7 +99,7 @@ if [ "$1" == "install" ]; then
 fi
 
 if [ -z "$LUCKY_DIR" ]; then
-    echo "lucky.sh has not yet been installed. Run \"lucky.sh --install\" first"
+    echo "lucky.sh has not yet been installed. Run \"lucky.sh install\" first"
     exit 255
 fi
 
