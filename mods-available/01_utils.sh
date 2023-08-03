@@ -1,8 +1,12 @@
 # Random utility functions that can probably be reused go here
 
+
+# Gen random ip with optional net/mask
+# rand_ip => 118.174.79.10
+# rand_ip 192.168.3.0 255.255.255.0 => 192.168.3.209 
 function rand_ip() {
     local net=${1:-0.0.0.0}
-    local mask=${2:-255.255.255.0}
+    local mask=${2:-0.0.0.0}
     local net_n=$(ip_to_int $net)
     local mask_n=$(ip_to_int $mask)
     local mask_inv_n=$(( ~($mask_n) ))
