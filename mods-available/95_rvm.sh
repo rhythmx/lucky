@@ -2,10 +2,10 @@ logmsg rvm::debug setting up Ruby/RVM environment
 
 if [ -f "$HOME/.rvm/scripts/rvm" ]
 then
-	  source "$HOME/.rvm/scripts/rvm"
+	source "$HOME/.rvm/scripts/rvm"
     export PATH="$PATH:$HOME/.rvm/bin"
 else
-    logmsg rvm::warn RVM is not installed. You can do this automatically by running lucky_rvm_install
+    logmsg rvm::debug RVM is not installed. You can do this automatically by running lucky_rvm_install
 
     function lucky_rvm_install() {
         # TODO: is any special handling needed for other platforms?
