@@ -47,3 +47,4 @@
 - Alert if certain system resources are not available
 - Support library to allow alerts during prompt generation
 - Add a command to re-prioritize
+- Add unit testing scaffolding for module functions (bats-core, or plain bash with the BASH_SOURCE guard pattern — see BASH_STYLE.md §12)
