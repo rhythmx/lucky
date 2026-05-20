@@ -31,6 +31,8 @@ function rand_password() {
             echo "    96bit:   base64-encoded          (ex: nl8N8CEby5KRjupi)"
             echo "    120bit:  base64-encoded          (ex: WzdM2dOprg8AVeTFUhKl)"
             echo "    240bit:  base64-encoded          (ex: PrWBrBA+vfX34eAUMW1owbTvmNcwPVW8+W9U8fgu)"
+            # TODO:
+            # echo "    guid:    hex encoded" 
             ;;
     esac
 }
