@@ -46,3 +46,4 @@
 - Alert if common or desired utilties are not available
 - Alert if certain system resources are not available
 - Support library to allow alerts during prompt generation
+- Add a command to re-prioritize
