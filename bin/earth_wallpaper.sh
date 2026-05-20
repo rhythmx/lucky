@@ -23,13 +23,13 @@ function GOES_image_name() {
   local fname="_GOES16-ABI-FD-GEOCOLOR-${GOES_RESOLUTION}.jpg"
   local then=$(date -u -d "$n seconds ago" +"%Y%j%H%M")
   local secs=${then: -2}
-  secs=$(( secs / 5 * 5))
+  secs=$(( secs / 10 * 10))
   printf "%s%02d%s" "${then%??}" "$secs" "$fname"
 }
 
 # Main loop
 while true; do
-  IMAGE_NAME=$(GOES_image_name 900) # add 15 minute delay to give time for it to show up
+  IMAGE_NAME=$(GOES_image_name 1800) # add 15 minute delay to give time for it to show up
   IMAGE_URL="$GOES_PATH/$IMAGE_NAME"
   TEMP_IMAGE="$TEMP_IMAGES/$IMAGE_NAME"
 
