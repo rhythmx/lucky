@@ -7,6 +7,54 @@
 export LUCKY_DIR="%%LUCKY_DIR%%"
 export PATH=$PATH:$LUCKY_DIR
 
+# Auto-update lucky from its git remote on interactive shell launch.
+# Lives here, not in a module, so a pull cannot reorder modules while
+# they are being sourced. Running before the mod loop below means the
+# loop picks up any updated modules on the same shell start.
+function _lucky-self-update() {
+    [[ "$-" != *i* ]] && return 0
+    [[ -n "${LUCKY_UPDATE_CHECKED:-}" ]] && return 0
+    export LUCKY_UPDATE_CHECKED=1
+
+    [[ -d "$LUCKY_DIR/.git" ]] || return 0
+    [[ -t 0 ]] || return 0   # need a TTY to prompt the user
+
+    # Fetch quietly with no credential prompt; on failure, just skip.
+    if ! GIT_TERMINAL_PROMPT=0 \
+            git -C "$LUCKY_DIR" fetch --quiet >/dev/null 2>&1; then
+        printf 'lucky: update check failed\n' >&2
+        return 0
+    fi
+
+    local local_head upstream_head merge_base
+    local_head=$(git -C "$LUCKY_DIR" rev-parse HEAD 2>/dev/null)      || return 0
+    upstream_head=$(git -C "$LUCKY_DIR" rev-parse '@{u}' 2>/dev/null) || return 0
+    [[ "$local_head" == "$upstream_head" ]] && return 0
+
+    # Only offer the update if local is strictly behind upstream
+    # (a clean fast-forward). Diverged / ahead histories are left alone.
+    merge_base=$(git -C "$LUCKY_DIR" merge-base HEAD '@{u}' 2>/dev/null)
+    [[ "$merge_base" == "$local_head" ]] || return 0
+
+    local answer
+    read -r -p "A git update to Lucky exists, would you like to apply it? [y/n] " answer
+    case "$answer" in
+        y|Y|yes|YES) ;;
+        *) return 0 ;;
+    esac
+
+    local old_short new_short
+    old_short=$(git -C "$LUCKY_DIR" rev-parse --short HEAD)
+    if ! git -C "$LUCKY_DIR" merge --ff-only --quiet '@{u}' >/dev/null 2>&1; then
+        printf 'lucky: update failed\n' >&2
+        return 0
+    fi
+    new_short=$(git -C "$LUCKY_DIR" rev-parse --short HEAD)
+    printf 'lucky: updated %s -> %s\n' "$old_short" "$new_short" >&2
+}
+
+_lucky-self-update
+
 # Load up each module
 
 for script in $(find "$LUCKY_DIR/mods-enabled" -maxdepth 1 -name "*.sh" 2>/dev/null | sort); do
