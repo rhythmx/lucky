@@ -77,8 +77,14 @@ function enable_mod() {
         echo "$1 is not a valid module. see '$0 list-all'"
         return
     fi
-    rp=$(realpath --relative-to="$LUCKY_DIR/mods-enabled" "$ap")
-    (cd "$LUCKY_DIR/mods-enabled" && ln -sf "$rp" .)
+    # mods-enabled and mods-available are siblings under LUCKY_DIR, so the
+    # relative link target is fixed. Computing it ourselves avoids GNU-only
+    # `realpath --relative-to`, which BSD/macOS realpath doesn't support.
+    rp="../mods-available/$(basename "$ap")"
+    (cd "$LUCKY_DIR/mods-enabled" && ln -sf "$rp" .) || {
+        echo "Failed to enable $1"
+        return 1
+    }
     echo "$1 is now enabled"
 }
 
