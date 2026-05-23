@@ -1,0 +1,7 @@
+# If I use a key I probably want it in the agent too
+AddKeysToAgent yes
+
+# Who cares about quantum?
+Host *
+   WarnWeakCrypto no-pq-kex 
+
