@@ -7,12 +7,11 @@ fi
 
 if [ -e "${XDG_CONFIG_HOME:-$HOME/.config}/tmux" ]; then
     logmsg tmux::debug tmux config present
-    return
+else
+    logmsg tmux::info "tmux installed but ${XDG_CONFIG_HOME:-$HOME/.config}/tmux missing — run lucky-tmux-install"
 fi
 
-logmsg tmux::info "tmux installed but ${XDG_CONFIG_HOME:-$HOME/.config}/tmux missing — run lucky-install-tmux"
-
-function lucky-install-tmux() {
+function lucky-tmux-install() {
     local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/tmux"
     local dotfiles="$LUCKY_DIR/dotfiles/tmux"
 
@@ -37,22 +36,4 @@ function lucky-install-tmux() {
     }
 
     logmsg tmux::info "linked $config_dir -> $dotfiles"
-
-    local tpm_dir="$config_dir/plugins/tpm"
-    if [[ -d "$tpm_dir/.git" ]]; then
-        logmsg tmux::debug "tpm already present at $tpm_dir"
-        return 0
-    fi
-
-    if ! command -v git >/dev/null; then
-        logmsg tmux::error "git not available, cannot clone tpm"
-        return 1
-    fi
-
-    git clone --quiet https://github.com/tmux-plugins/tpm "$tpm_dir" || {
-        logmsg tmux::error "failed to clone tpm into $tpm_dir"
-        return 1
-    }
-
-    logmsg tmux::info "cloned tpm to $tpm_dir"
 }
