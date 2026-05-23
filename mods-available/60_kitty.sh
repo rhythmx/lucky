@@ -10,9 +10,9 @@ if [ -e "${XDG_CONFIG_HOME:-$HOME/.config}/kitty" ]; then
     return
 fi
 
-logmsg kitty::info "kitty installed but ${XDG_CONFIG_HOME:-$HOME/.config}/kitty missing — run lucky-install-kitty"
+logmsg kitty::warn "kitty installed but ${XDG_CONFIG_HOME:-$HOME/.config}/kitty missing — run lucky-kitty-install"
 
-function lucky-install-kitty() {
+function lucky-kitty-install() {
     local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/kitty"
     local dotfiles="$LUCKY_DIR/dotfiles/kitty"
 

@@ -8,7 +8,7 @@ fi
 if [ -e "${XDG_CONFIG_HOME:-$HOME/.config}/tmux" ]; then
     logmsg tmux::debug tmux config present
 else
-    logmsg tmux::info "tmux installed but ${XDG_CONFIG_HOME:-$HOME/.config}/tmux missing — run lucky-tmux-install"
+    logmsg tmux::warn "tmux installed but ${XDG_CONFIG_HOME:-$HOME/.config}/tmux missing — run lucky-tmux-install"
 fi
 
 function lucky-tmux-install() {

@@ -12,7 +12,7 @@ function _lucky-ssh-installed() {
 }
 
 if ! _lucky-ssh-installed; then
-    logmsg ssh::info "lucky ssh config not linked — run lucky-ssh-install"
+    logmsg ssh::warn "lucky ssh config not linked — run lucky-ssh-install"
 fi
 
 function lucky-ssh-install() {

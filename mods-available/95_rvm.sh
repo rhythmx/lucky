@@ -16,6 +16,6 @@ if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
     source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
     eval "$(rbenv init - --no-rehash bash)"
 else
-    logmsg rvm::debug RVM is not installed. You can do this automatically by running lucky_rvm_install
+    logmsg rvm::warn RVM is not installed. You can do this automatically by running lucky_rvm_install
 
 fi

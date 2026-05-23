@@ -65,6 +65,11 @@ exports.
 - Use `function name() { ... }` for declarations.
 - Function names use kebab-case (e.g., `words-split-by-hyphen`).
 - Internal-only functions are prefixed with `_`.
+- User-facing helpers exposed by a module are named
+  `lucky-<modname>-<verb>` (e.g., `lucky-ssh-install`,
+  `lucky-kitty-install`). Module name first keeps things hierarchical
+  and tab-completion predictable: typing `lucky-ssh-<TAB>` shows
+  everything the `ssh` module exposes.
 
 ## Variables
 
