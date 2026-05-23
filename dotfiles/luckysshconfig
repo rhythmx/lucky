@@ -1,7 +1,11 @@
 # If I use a key I probably want it in the agent too
 AddKeysToAgent yes
 
+# Forward-declare options that only exist in newer OpenSSH so older
+# versions silently skip them instead of erroring out at parse time.
+IgnoreUnknown WarnWeakCrypto
+
 # Who cares about quantum?
 Host *
-   WarnWeakCrypto no-pq-kex 
+   WarnWeakCrypto no-pq-kex
 
