@@ -30,7 +30,9 @@ function install() {
 	      echo "LUCKY_DIR is not set!"
     fi
 
-    local user_dir="${LUCKY_USER_DIR:-$HOME/.lucky.d}"
+    # Always default to ~/.lucky.d; do NOT inherit LUCKY_USER_DIR from the
+    # environment — an old shell may still have stale vars from a previous install.
+    local user_dir="$HOME/.lucky.d"
 
     if [ -e "${HOME}/.bashrc" ]; then
         if [ -f "${HOME}/.bashrc" ]; then
@@ -61,9 +63,8 @@ function install() {
         ln -sf "$LUCKY_DIR/mods-available/$mod" "$mods_enabled_dir/$mod"
     done
 
-    source "$HOME/.bash_profile"
-
     echo "lucky.sh has been installed. Enjoy!"
+    echo "Run 'source ~/.bash_profile' to apply the new configuration to your current shell."
     exit 0
 }
 
@@ -82,6 +83,10 @@ function prio_for() {
 }
 
 function enable_mod() {
+    if [ ! -d "$LUCKY_USER_DIR/mods-enabled" ]; then
+        echo "User directory not initialized. Run 'lucky.sh install' first."
+        return 1
+    fi
     if [ -e "$(en_path_for $1)" ]; then
         echo "$1 is already enabled"
         return
@@ -137,12 +142,12 @@ case "$1" in
         usage
         ;;
     list)
-        for f in $(find "$LUCKY_USER_DIR/mods-enabled" -maxdepth 1 -name '*.sh' | sort); do
+        for f in $(find "$LUCKY_USER_DIR/mods-enabled" -maxdepth 1 -name '*.sh' 2>/dev/null | sort); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;
     list-all)
-        for f in $(find $LUCKY_DIR/mods-available -maxdepth 1 -name '*.sh' | sort); do
+        for f in $(find "$LUCKY_DIR/mods-available" -maxdepth 1 -name '*.sh' 2>/dev/null | sort); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;
