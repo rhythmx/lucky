@@ -25,15 +25,16 @@ function lucky-tmux-install() {
         return 1
     fi
 
-    mkdir -p "$(dirname "$config_dir")" || {
-        logmsg tmux::error "could not create $(dirname "$config_dir")"
+    mkdir -p "$config_dir" || {
+        logmsg tmux::error "could not create $config_dir"
         return 1
     }
 
-    ln -s "$dotfiles" "$config_dir" || {
-        logmsg tmux::error "failed to symlink $config_dir -> $dotfiles"
+    # Symlink only tmux.conf so TPM can install plugins to the writable real dir.
+    ln -sf "$dotfiles/tmux.conf" "$config_dir/tmux.conf" || {
+        logmsg tmux::error "failed to symlink $config_dir/tmux.conf"
         return 1
     }
 
-    logmsg tmux::info "linked $config_dir -> $dotfiles"
+    logmsg tmux::info "set up $config_dir (writable, tmux.conf symlinked from $dotfiles)"
 }

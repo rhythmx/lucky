@@ -14,17 +14,21 @@ function lucky-nvim-install() {
         return 1
     fi
 
-    mkdir -p "$(dirname "$config_dir")" || {
-        logmsg nvim::error "could not create $(dirname "$config_dir")"
+    mkdir -p "$config_dir" || {
+        logmsg nvim::error "could not create $config_dir"
         return 1
     }
 
-    ln -s "$dotfiles" "$config_dir" || {
-        logmsg nvim::error "failed to symlink $config_dir -> $dotfiles"
-        return 1
-    }
+    # Symlink individual tracked items so plugin managers (lazy.nvim writes
+    # lazy-lock.json) and per-user state land in the writable real directory.
+    for item in init.lua lua; do
+        ln -sf "$dotfiles/$item" "$config_dir/$item" || {
+            logmsg nvim::error "failed to symlink $config_dir/$item"
+            return 1
+        }
+    done
 
-    logmsg nvim::info "linked $config_dir -> $dotfiles"
+    logmsg nvim::info "set up $config_dir (writable, files symlinked from $dotfiles)"
 }
 
 if ! command -v nvim >/dev/null; then

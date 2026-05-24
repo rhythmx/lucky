@@ -26,15 +26,17 @@ function lucky-kitty-install() {
         return 1
     fi
 
-    mkdir -p "$(dirname "$config_dir")" || {
-        logmsg kitty::error "could not create $(dirname "$config_dir")"
+    mkdir -p "$config_dir" || {
+        logmsg kitty::error "could not create $config_dir"
         return 1
     }
 
-    ln -s "$dotfiles" "$config_dir" || {
-        logmsg kitty::error "failed to symlink $config_dir -> $dotfiles"
+    # Symlink only kitty.conf so per-user state (sessions, user.conf) can live
+    # alongside it in the writable real directory.
+    ln -sf "$dotfiles/kitty.conf" "$config_dir/kitty.conf" || {
+        logmsg kitty::error "failed to symlink $config_dir/kitty.conf"
         return 1
     }
 
-    logmsg kitty::info "linked $config_dir -> $dotfiles"
+    logmsg kitty::info "set up $config_dir (writable, kitty.conf symlinked from $dotfiles)"
 }
