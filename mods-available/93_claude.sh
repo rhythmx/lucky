@@ -3,7 +3,7 @@ logmsg claude::debug setting up claude
 export PATH="$HOME/.local/bin:$PATH"
 
 if ! command -v claude >/dev/null; then
-	logmsg claude::warn "claude module enabled but not command not installed. install with `curl -fsSL https://claude.ai/install.sh | bash`"
+	logmsg claude::warn "claude module enabled but not command not installed. install with 'curl -fsSL https://claude.ai/install.sh | bash'"
 	return 1
 fi
 
