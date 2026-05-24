@@ -5,7 +5,7 @@ fi
 
 export LUCKY_DIR
 
-LUCKY_PREFIX="$LUCKY_DIR/local"
+LUCKY_PREFIX="$LUCKY_USER_DIR/local"
 LUCKY_RUNDIR="$LUCKY_PREFIX/run"
 LUCKY_BINDIR="$LUCKY_PREFIX/bin"
 
@@ -19,7 +19,7 @@ function create_and_chmod() {
     chmod 700 "$dirname"
 }
 
-create_and_chmod "$LUCKY_DIR"
+create_and_chmod "$LUCKY_USER_DIR"
 create_and_chmod "$LUCKY_PREFIX"
 create_and_chmod "$LUCKY_RUNDIR"
 create_and_chmod "$LUCKY_BINDIR"

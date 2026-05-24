@@ -29,6 +29,9 @@ function install() {
     if [ -z "$LUCKY_DIR" ]; then
 	      echo "LUCKY_DIR is not set!"
     fi
+
+    local user_dir="${LUCKY_USER_DIR:-$HOME/.lucky.d}"
+
     if [ -e "${HOME}/.bashrc" ]; then
         if [ -f "${HOME}/.bashrc" ]; then
             cp -a "${HOME}/.bashrc" "${HOME}/.bashrc.$(date +%s).bak"
@@ -37,7 +40,7 @@ function install() {
     fi
     cat "${LUCKY_DIR}/dotfiles/bashrc" | \
 	      sed -e "s:%%LUCKY_DIR%%:$LUCKY_DIR:" \
-	      > "${HOME}/.bashrc" 
+	      > "${HOME}/.bashrc"
 
     if [ -e "${HOME}/.bash_profile" ]; then
         if [ -f "${HOME}/.bash_profile" ]; then
@@ -47,6 +50,17 @@ function install() {
     fi
     ln -sf "${LUCKY_DIR}/dotfiles/bash_profile" "${HOME}/.bash_profile"
 
+    # Populate per-user mods-enabled from the repo's mods-default set.
+    # Symlinks are absolute so they work regardless of where LUCKY_USER_DIR lives.
+    local mods_enabled_dir="$user_dir/mods-enabled"
+    mkdir -p "$mods_enabled_dir"
+    for src in "$LUCKY_DIR/mods-default/"*.sh; do
+        [ -e "$src" ] || continue
+        local mod
+        mod=$(basename "$src")
+        ln -sf "$LUCKY_DIR/mods-available/$mod" "$mods_enabled_dir/$mod"
+    done
+
     source "$HOME/.bash_profile"
 
     echo "lucky.sh has been installed. Enjoy!"
@@ -54,7 +68,7 @@ function install() {
 }
 
 function en_path_for() {
-    p=$(find "$LUCKY_DIR/mods-enabled" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
+    p=$(find "$LUCKY_USER_DIR/mods-enabled" -regex ".*[0-9][0-9]_${1}.sh" | head -n 1)
     [ -e "$p" ] && echo $p
 }
 
@@ -77,11 +91,10 @@ function enable_mod() {
         echo "$1 is not a valid module. see '$0 list-all'"
         return
     fi
-    # mods-enabled and mods-available are siblings under LUCKY_DIR, so the
-    # relative link target is fixed. Computing it ourselves avoids GNU-only
-    # `realpath --relative-to`, which BSD/macOS realpath doesn't support.
-    rp="../mods-available/$(basename "$ap")"
-    (cd "$LUCKY_DIR/mods-enabled" && ln -sf "$rp" .) || {
+    # Use absolute symlink: mods-enabled is in LUCKY_USER_DIR (e.g. ~/.lucky.d)
+    # while mods-available is in LUCKY_DIR (e.g. /opt/lucky), so relative links
+    # can't work.
+    ln -sf "$ap" "$LUCKY_USER_DIR/mods-enabled/$(basename "$ap")" || {
         echo "Failed to enable $1"
         return 1
     }
@@ -109,6 +122,8 @@ if [ -z "$LUCKY_DIR" ]; then
     exit 255
 fi
 
+: "${LUCKY_USER_DIR:=$HOME/.lucky.d}"
+
 # Not bash or zsh?
 if [ -z "$BASH_VERSION" -a -z "$ZSH_VERSION" ]; then
     echo "lucky does not support plain sh. use bash"
@@ -122,7 +137,7 @@ case "$1" in
         usage
         ;;
     list)
-        for f in $(find $LUCKY_DIR/mods-enabled -maxdepth 1 -name '*.sh' | sort); do
+        for f in $(find "$LUCKY_USER_DIR/mods-enabled" -maxdepth 1 -name '*.sh' | sort); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;

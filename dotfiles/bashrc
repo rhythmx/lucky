@@ -5,6 +5,7 @@
 # Setup lucky core
 
 export LUCKY_DIR="%%LUCKY_DIR%%"
+export LUCKY_USER_DIR="${LUCKY_USER_DIR:-$HOME/.lucky.d}"
 export PATH=$PATH:$LUCKY_DIR
 
 # Auto-update lucky from its git remote on interactive shell launch.
@@ -17,6 +18,7 @@ function _lucky-self-update() {
     export LUCKY_UPDATE_CHECKED=1
 
     [[ -d "$LUCKY_DIR/.git" ]] || return 0
+    [[ -w "$LUCKY_DIR" ]] || return 0   # skip update for system-wide installs
     [[ -t 0 ]] || return 0   # need a TTY to prompt the user
 
     # Fetch quietly with no credential prompt; on failure, just skip.
@@ -57,7 +59,7 @@ _lucky-self-update
 
 # Load up each module
 
-for script in $(find "$LUCKY_DIR/mods-enabled" -maxdepth 1 -name "*.sh" 2>/dev/null | sort); do
+for script in $(find "$LUCKY_USER_DIR/mods-enabled" -maxdepth 1 -name "*.sh" 2>/dev/null | sort); do
     # NOTE: Each subscript should decide if it needs to be run in non-interactive
     source $script
 done
