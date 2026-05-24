@@ -21,6 +21,7 @@ function usage() {
     echo "      list-all:       list every available module"
     echo "      enable [mod]:   enable the given module"
     echo "      disable [mod]:  disable the given module"
+    echo "      select:         interactively choose modules (whiptail/dialog)"
     echo "      locate [mod]:   print location of script file for mod"
     echo "      reload [mod]:   reload script source (if enabled)"
 }
@@ -78,6 +79,23 @@ function av_path_for() {
     [ -e "$p" ] && echo $p
 }
 
+# All available module script paths, sorted by priority prefix.
+function available_mod_files() {
+    find "$LUCKY_DIR/mods-available" -maxdepth 1 -name '*.sh' 2>/dev/null | sort
+}
+
+# All enabled module script paths, sorted by priority prefix.
+function enabled_mod_files() {
+    find "$LUCKY_USER_DIR/mods-enabled" -maxdepth 1 -name '*.sh' 2>/dev/null | sort
+}
+
+# True if the given module basename (e.g. 50_prompt.sh) is enabled for this
+# user. Matches dangling symlinks too, so stale links count as enabled.
+function is_enabled() {
+    local link="$LUCKY_USER_DIR/mods-enabled/$1"
+    [ -L "$link" ] || [ -e "$link" ]
+}
+
 function prio_for() {
     $(basename $(av_path_for $1) | cut -d_ -f1)
 }
@@ -116,6 +134,100 @@ function disable_mod() {
     echo "$1 has been disabled"
 }
 
+# Strip the priority prefix and .sh suffix off a module filename to get the
+# name that enable_mod/disable_mod expect (e.g. 50_prompt.sh -> prompt).
+function mod_name_for() {
+    echo "$1" | sed -E 's/^[0-9]+_(.*)\.sh$/\1/'
+}
+
+function select_mods() {
+    if [ ! -d "$LUCKY_USER_DIR/mods-enabled" ]; then
+        echo "User directory not initialized. Run '$0 install' first."
+        return 1
+    fi
+    if [ ! -t 1 ]; then
+        echo "select requires an interactive terminal."
+        return 1
+    fi
+
+    local tui
+    if command -v whiptail >/dev/null 2>&1; then
+        tui=whiptail
+    elif command -v dialog >/dev/null 2>&1; then
+        tui=dialog
+    else
+        echo "The 'select' menu needs 'whiptail' or 'dialog' installed."
+        echo "  Debian/Ubuntu:  apt install whiptail"
+        echo "  Fedora/RHEL:    dnf install dialog"
+        echo "Until then, use '$0 enable <mod>' / '$0 disable <mod>'."
+        return 1
+    fi
+
+    # Build the checklist: one tag/description/state triple per module.
+    local files=() args=()
+    local f base
+    for f in $(available_mod_files); do
+        base=$(basename "$f")
+        files+=("$base")
+        args+=("$base" "$(mod_name_for "$base")")
+        if is_enabled "$base"; then
+            args+=("ON")
+        else
+            args+=("OFF")
+        fi
+    done
+
+    local n=${#files[@]}
+    if [ "$n" -eq 0 ]; then
+        echo "No modules available."
+        return
+    fi
+
+    local list_height=$n
+    [ "$list_height" -gt 15 ] && list_height=15
+
+    # --separate-output yields one selected tag per line (no quoting to parse).
+    # The 3>&1 1>&2 2>&3 dance routes the result (normally on stderr) to stdout.
+    local chosen status
+    chosen=$("$tui" --title "lucky module selection" --separate-output \
+        --checklist "space toggles, enter applies" \
+        $(( list_height + 8 )) 60 "$list_height" \
+        "${args[@]}" 3>&1 1>&2 2>&3)
+    status=$?
+
+    if [ "$status" -ne 0 ]; then
+        echo "Cancelled. No changes made."
+        return
+    fi
+
+    # Reconcile each module against the selection, delegating to the same
+    # enable/disable helpers the CLI commands use.
+    local i name changed=0
+    for (( i=0; i<n; i++ )); do
+        name=$(mod_name_for "${files[$i]}")
+        case $'\n'"$chosen"$'\n' in
+            *$'\n'"${files[$i]}"$'\n'*)
+                if ! is_enabled "${files[$i]}"; then
+                    enable_mod "$name"
+                    changed=1
+                fi
+                ;;
+            *)
+                if is_enabled "${files[$i]}"; then
+                    disable_mod "$name"
+                    changed=1
+                fi
+                ;;
+        esac
+    done
+
+    if [ "$changed" -eq 0 ]; then
+        echo "No changes."
+    else
+        echo "Run 'source ~/.bash_profile' to apply changes to your current shell."
+    fi
+}
+
 if [ "$1" == "install" ]; then
     banner
     LUCKY_DIR=$(readlink -f "$(dirname ${BASH_SOURCE[0]})")
@@ -142,12 +254,12 @@ case "$1" in
         usage
         ;;
     list)
-        for f in $(find "$LUCKY_USER_DIR/mods-enabled" -maxdepth 1 -name '*.sh' 2>/dev/null | sort); do
+        for f in $(enabled_mod_files); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;
     list-all)
-        for f in $(find "$LUCKY_DIR/mods-available" -maxdepth 1 -name '*.sh' 2>/dev/null | sort); do
+        for f in $(available_mod_files); do
             basename $f| sed -E "s/^([0-9]+)_(.*)\.sh/\2 \1/" | xargs printf "%-20s (prio: %s)\n"
         done
         ;;
@@ -156,6 +268,9 @@ case "$1" in
         ;;
     disable)
         disable_mod $2
+        ;;
+    select)
+        select_mods
         ;;
     locate)
         av_path_for $2
