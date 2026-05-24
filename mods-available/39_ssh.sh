@@ -53,6 +53,11 @@ function lucky-ssh-install() {
         logmsg ssh::info "linked $link -> $dotfile"
     fi
 
+    chmod 600 "$dotfile" || {
+        logmsg ssh::error "failed to chmod 600 $dotfile"
+        return 1
+    }
+
     if [ -f "$config" ] && grep -qE '^[[:space:]]*Include[[:space:]]+.*luckysshconfig([[:space:]]|$)' "$config" 2>/dev/null; then
         logmsg ssh::debug "$config already has Include line"
     elif [ -f "$config" ]; then
